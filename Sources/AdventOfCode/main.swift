@@ -3,31 +3,31 @@ import Foundation
 // where do the Day input files live relative to $HOME
 let fixturePath = "Developer/AdventOfCode/AoC2015/Fixtures"
 
-Day01().run()
+//Day01().run()
 Day02().run()
-Day03().run()
-Day04().run()
-Day05().run()
-Day06().run()
-Day07().run()
-Day08().run()
-Day09().run()
-Day10().run()
-Day11().run()
-Day12().run()
-Day13().run()
-Day14().run()
-Day15().run()
-Day16().run()
-Day17().run()
-Day18().run()
-Day19().run()
-Day20().run()
-Day21().run()
-Day22().run()
-Day23().run()
-Day24().run()
-Day25().run()
+//Day03().run()
+//Day04().run()
+//Day05().run()
+//Day06().run()
+//Day07().run()
+//Day08().run()
+//Day09().run()
+//Day10().run()
+//Day11().run()
+//Day12().run()
+//Day13().run()
+//Day14().run()
+//Day15().run()
+//Day16().run()
+//Day17().run()
+//Day18().run()
+//Day19().run()
+//Day20().run()
+//Day21().run()
+//Day22().run()
+//Day23().run()
+//Day24().run()
+//Day25().run()
 Timer.showTotal()
 
 protocol Day {
@@ -47,7 +47,11 @@ public func readFile(named name: String) -> [String] {
         }
     }
     if let data = try? Data(contentsOf: url), let str = String(bytes: data, encoding: .utf8) {
-        return str.split(separator: "\n", omittingEmptySubsequences: false).dropLast().map { String($0) }
+        var arr = str.split(separator: "\n", omittingEmptySubsequences: false)
+        if arr.last?.isEmpty == true {
+            arr.removeLast()
+        }
+        return arr.map { String($0) }
     }
     print("OOPS: can't read \(url.absoluteURL)")
     return []
