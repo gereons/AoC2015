@@ -1,7 +1,7 @@
 // Solution for part 1: X
 // Solution for part 2: Y
 
-struct Point: Hashable {
+private struct Point: Hashable {
     let x,y : Int
 }
 
