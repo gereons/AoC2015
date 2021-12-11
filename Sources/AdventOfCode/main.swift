@@ -12,9 +12,9 @@ let fixturePath = "Developer/AdventOfCode/AoC2015/Fixtures"
 //Day07().run()
 //Day08().run()
 //Day09().run()
-Day10().run()
+//Day10().run()
 //Day11().run()
-//Day12().run()
+Day12().run()
 //Day13().run()
 //Day14().run()
 //Day15().run()
@@ -35,7 +35,7 @@ protocol Day {
     var day: String { get }
 }
 
-public func readFile(named name: String) -> [String] {
+public func readRawFile(named name: String) -> Data? {
     // relative url, works when running with "swift run"
     var url = URL(fileURLWithPath: "Fixtures/\(name)")
     do {
@@ -46,14 +46,18 @@ public func readFile(named name: String) -> [String] {
             url = URL(fileURLWithPath: "\(home)/\(fixturePath)/\(name)")
         }
     }
-    if let data = try? Data(contentsOf: url), let str = String(bytes: data, encoding: .utf8) {
+    return try? Data(contentsOf: url)
+}
+
+public func readFile(named name: String) -> [String] {
+    if let data = readRawFile(named: name), let str = String(bytes: data, encoding: .utf8) {
         var arr = str.split(separator: "\n", omittingEmptySubsequences: false)
         if arr.last?.isEmpty == true {
             arr.removeLast()
         }
         return arr.map { String($0) }
     }
-    print("OOPS: can't read \(url.absoluteURL)")
+    print("OOPS: can't read input file \(name)")
     return []
 }
 
