@@ -80,6 +80,6 @@ class Timer {
     }
 
     static func showTotal() {
-        print("Total time: \(Self.total)s")
+        print("Total time: \(Self.total*1000)ms")
     }
 }
