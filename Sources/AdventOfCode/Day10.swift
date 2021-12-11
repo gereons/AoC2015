@@ -3,27 +3,53 @@
 
 struct Day10 {
     let day = "10"
-    let testData = [ "1","2","3" ]
+    let testData = [ "1","11","21", "1211", "111221" ]
+    let realData = "1113222113"
 
     func run() {
         // let data = testData
-        let data = readFile(named: "Day\(day)_input.txt")
 
-        let positions = Timer.time(day) {
-            data.compactMap { Int($0) }
+        print("Solution for part 1: \(part1(realData))")
+        print("Solution for part 2: \(part2(realData))")
+    }
+
+    private func lookAndSay(_ input: [Int]) -> [Int] {
+        var prev = input[0]
+        var count = 0
+        var output = [Int]()
+
+        for ch in input {
+            if ch == prev {
+                count += 1
+            } else {
+                output.append(count)
+                output.append(prev)
+                count = 1
+            }
+            prev = ch
         }
 
-        print("Solution for part 1: \(part1(positions))")
-        print("Solution for part 2: \(part2(positions))")
+        output.append(count)
+        output.append(prev)
+
+        return output
     }
 
-    private func part1(_ positions: [Int]) -> Int {
+    private func part1(_ str: String) -> Int {
         let timer = Timer(day); defer { timer.show() }
-        return 42
+        var digits = str.compactMap { Int(String($0)) }
+        for _ in 0..<40 {
+            digits = lookAndSay(digits)
+        }
+        return digits.count
     }
 
-    private func part2(_ positions: [Int]) -> Int {
+    private func part2(_ str: String) -> Int {
         let timer = Timer(day); defer { timer.show() }
-        return 42
+        var digits = str.compactMap { Int(String($0)) }
+        for _ in 0..<50 {
+            digits = lookAndSay(digits)
+        }
+        return digits.count
     }
 }
