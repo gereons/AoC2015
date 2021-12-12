@@ -1,29 +1,111 @@
 // Solution for part 1: X
 // Solution for part 2: Y
 
+import Darwin
+
 struct Day16 {
     let day = "16"
     let testData = [ "1","2","3" ]
 
-    func run() {
-        // let data = testData
-        let data = readFile(named: "Day\(day)_input.txt")
+    struct Aunt {
+        let number: Int
+        let attributes: [String: Int]
 
-        let positions = Timer.time(day) {
-            data.compactMap { Int($0) }
+        // Sue 11: vizslas: 5, perfumes: 8, cars: 10
+        // Sue 12: children: 10, cars: 6, perfumes: 5
+        init(_ str: String) {
+            let tokens = str.split(separator: " ")
+            number = Int(tokens[1].dropLast())!
+            var attrs = [String: Int]()
+            for index in stride(from: 2, through: tokens.count - 1, by: 2) {
+                let name = String(tokens[index].dropLast())
+                var count = tokens[index+1]
+                if count.last == "," {
+                    count.removeLast()
+                }
+                attrs[name] = Int(count)!
+            }
+            attributes = attrs
         }
 
-        print("Solution for part 1: \(part1(positions))")
-        print("Solution for part 2: \(part2(positions))")
+        func matches(_ criteria: [String: Int]) -> Bool {
+            var match = 0
+            for (name, count) in attributes {
+                if criteria[name] == count {
+                    match += 1
+                }
+            }
+
+            return match == attributes.count
+        }
+
+        func rangeMatches(_ criteria: [String: Int]) -> Bool {
+            var match = 0
+            for (name, count) in attributes {
+                switch name {
+                case "cats", "trees":
+                    if count > criteria[name, default: 999] {
+                        match += 1
+                    }
+                case "pomeranians", "goldfish":
+                    if count < criteria[name, default: -999] {
+                        match += 1
+                    }
+                default:
+                    if criteria[name] == count {
+                        match += 1
+                    }
+                }
+            }
+            return match == attributes.count
+        }
     }
 
-    private func part1(_ positions: [Int]) -> Int {
-        let timer = Timer(day); defer { timer.show() }
-        return 42
+    func run() {
+        let data = readFile(named: "Day\(day)_input.txt")
+
+        let criteria = [
+            "children": 3,
+            "cats": 7,
+            "samoyeds": 2,
+            "pomeranians": 3,
+            "akitas": 0,
+            "vizslas": 0,
+            "goldfish": 5,
+            "trees": 3,
+            "cars": 2,
+            "perfumes": 1
+        ]
+
+        let aunts = Timer.time(day) {
+            data.compactMap { Aunt($0) }
+        }
+
+        print("Solution for part 1: \(part1(aunts, criteria))")
+        print("Solution for part 2: \(part2(aunts, criteria))")
     }
 
-    private func part2(_ positions: [Int]) -> Int {
+    private func part1(_ allAunts: [Aunt], _ criteria: [String: Int]) -> Int {
         let timer = Timer(day); defer { timer.show() }
-        return 42
+
+        for aunt in allAunts {
+            if aunt.matches(criteria) {
+                return aunt.number
+            }
+        }
+
+        fatalError()
+    }
+
+    private func part2(_ allAunts: [Aunt], _ criteria: [String: Int]) -> Int {
+        let timer = Timer(day); defer { timer.show() }
+
+        for aunt in allAunts {
+            if aunt.rangeMatches(criteria) {
+                return aunt.number
+            }
+        }
+
+        fatalError()
     }
 }
