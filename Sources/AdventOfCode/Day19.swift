@@ -1,44 +1,80 @@
 // Solution for part 1: X
 // Solution for part 2: Y
 
+private struct Atom: Hashable {
+    let name: String
+
+    static func fromString(_ string: String) -> [Atom] {
+        var atoms = [Atom]()
+        var prevCh: Character?
+        let chArray = Array(string)
+
+        for i in 0..<chArray.count {
+            let ch = chArray[i]
+            if let prev = prevCh {
+                if chArray[i].isLowercase {
+                    atoms.append(Atom(name: "\(prev)\(ch)"))
+                    prevCh = nil
+                } else {
+                    atoms.append(Atom(name: "\(prev)"))
+                    prevCh = ch
+                }
+            } else {
+                prevCh = ch
+            }
+        }
+        if let prev = prevCh {
+            atoms.append(Atom(name: "\(prev)"))
+        }
+        return atoms
+    }
+}
+
+private struct Molecule: Hashable, CustomDebugStringConvertible {
+    let atoms: [Atom]
+
+    var debugDescription: String {
+        atoms.map { $0.name }.joined(separator: "")
+    }
+}
+
 struct Day19 {
     let day = "19"
     let testData = [
-        "e => H",
-        "e => O",
+//        "e => H",
+//        "e => O",
         "H => HO",
         "H => OH",
         "O => HH",
         "",
-        "HOHOHO",
+        "HOH",
     ]
 
     func run() {
         // let data = testData
         let data = readFile(named: "Day\(day)_input.txt")
 
-        let (replacements, molecule) = Timer.time(day) { () -> ([String: [String]], String) in
-            var repl = [String: [String]]()
-            var molecule = ""
+        let (replacements, molecule) = Timer.time(day) { () -> ([Atom: [[Atom]]], Molecule) in
+            var repl = [Atom: [[Atom]]]()
+            var molecule = Molecule(atoms: [])
             for line in data {
                 let tokens = line.split(separator: " ")
                 if tokens.count == 3 {
-                    let from = String(tokens[0])
-                    let to = String(tokens[2])
-                    repl[from, default: []].append(to)
+                    let from = Atom(name: String(tokens[0]))
+                    repl[from, default: []].append(Atom.fromString(String(tokens[2])))
                 } else if tokens.count == 1 {
-                    molecule = line
+                    molecule = Molecule(atoms: Atom.fromString(String(tokens[0])))
                 }
             }
 
             return (repl, molecule)
         }
 
-        // print("Solution for part 1: \(part1(molecule, replacements))")
-        print("Solution for part 2: \(part2(molecule, replacements))")
+        print("Solution for part 1: \(part1(molecule, replacements))")
+        // print("Solution for part 2: \(part2(molecule, replacements))")
     }
 
-    private func part1(_ molecule: String, _ replacements: [String: [String]]) -> Int {
+    private func part1(_ molecule: Molecule, _ replacements: [Atom: [[Atom]]]) -> Int {
         let timer = Timer(day); defer { timer.show() }
 
         let variants = variations(for: molecule, replacements)
@@ -46,29 +82,22 @@ struct Day19 {
         return variants.count
     }
 
-    private func variations(for molecule: String, _ replacements: [String: [String]]) -> Set<String> {
-        var new = [String]()
-        let cnt = molecule.count
-        let start = molecule.startIndex
+    private func variations(for molecule: Molecule, _ replacements: [Atom: [[Atom]]]) -> Set<Molecule> {
+        var molecules = [Molecule]()
 
-        for (index, ch) in molecule.enumerated() {
-            if let repl = replacements[String(ch)] {
-                for r in repl {
-                    let newMolecule = "\(molecule.prefix(index))\(r)\(molecule.suffix(cnt - index - 1))"
-                    new.append(newMolecule)
-                }
-            } else if index < molecule.count - 1 {
-                let s = molecule[molecule.index(start, offsetBy: index)...molecule.index(start, offsetBy: index+1)]
-                if let repl = replacements[String(s)] {
-                    for r in repl {
-                        let newMolecule = "\(molecule.prefix(index))\(r)\(molecule.suffix(cnt - index - 2))"
-                        new.append(newMolecule)
-                    }
+        for (index, atom) in molecule.atoms.enumerated() {
+            if let replacements = replacements[atom] {
+                for repl in replacements {
+                    var atoms = molecule.atoms
+                    atoms.remove(at: index)
+                    atoms.insert(contentsOf: repl, at: index)
+                    let newMolecule = Molecule(atoms: atoms)
+                    molecules.append(newMolecule)
                 }
             }
         }
 
-        return Set(new)
+        return Set(molecules)
     }
 
     private func part2(_ molecule: String, _ replacements: [String: [String]]) -> Int {
