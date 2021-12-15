@@ -1,29 +1,55 @@
 // Solution for part 1: X
 // Solution for part 2: Y
+import Foundation
 
 struct Day20 {
     let day = "20"
-    let testData = [ "1","2","3" ]
 
     func run() {
-        // let data = testData
-        let data = readFile(named: "Day\(day)_input.txt")
+        print("Solution for part 1: \(part1())")
+        print("Solution for part 2: \(part2())")
+    }
 
-        let positions = Timer.time(day) {
-            data.compactMap { Int($0) }
+    private func part1() -> Int {
+        let timer = Timer(day); defer { timer.show() }
+
+        let house = 36000000
+        let target = presents(for: house)
+        print("target", target)
+        // target = 1297444330
+        //          129744433
+        // house = 27387360
+        for i in 1..<house {
+            let p = presents(for: i)
+            if p >= target {
+                print(i, p)
+                return i
+            }
         }
-
-        print("Solution for part 1: \(part1(positions))")
-        print("Solution for part 2: \(part2(positions))")
+        fatalError()
     }
 
-    private func part1(_ positions: [Int]) -> Int {
+    private func part2() -> Int {
         let timer = Timer(day); defer { timer.show() }
         return 42
     }
 
-    private func part2(_ positions: [Int]) -> Int {
-        let timer = Timer(day); defer { timer.show() }
-        return 42
+    private func presents(for house: Int) -> Int {
+        divisors(of: house).reduce(0, +) * 10
     }
+
+    private func divisors(of number: Int) -> [Int] {
+        var results = [Int]()
+        let sqrt = Int(sqrt(Double(number)))
+        for i in 1...sqrt {
+            if number.isMultiple(of: i) {
+                results.append(i)
+                if number / i != i {
+                    results.append(number / i)
+                }
+            }
+        }
+        return results
+    }
+
 }

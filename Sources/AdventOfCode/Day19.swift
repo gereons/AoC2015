@@ -38,6 +38,12 @@ private struct Molecule: Hashable, CustomDebugStringConvertible {
     }
 }
 
+private extension Array where Element == Atom {
+    var atoms: String {
+        self.map { $0.name }.joined(separator: "")
+    }
+}
+
 struct Day19 {
     let day = "19"
     let testData = [
@@ -70,8 +76,8 @@ struct Day19 {
             return (repl, molecule)
         }
 
-        print("Solution for part 1: \(part1(molecule, replacements))")
-        // print("Solution for part 2: \(part2(molecule, replacements))")
+        // print("Solution for part 1: \(part1(molecule, replacements))")
+        print("Solution for part 2: \(part2(molecule, replacements))")
     }
 
     private func part1(_ molecule: Molecule, _ replacements: [Atom: [[Atom]]]) -> Int {
@@ -100,19 +106,56 @@ struct Day19 {
         return Set(molecules)
     }
 
-    private func part2(_ molecule: String, _ replacements: [String: [String]]) -> Int {
+    private func part2(_ molecule: Molecule, _ replacements: [Atom: [[Atom]]]) -> Int {
         let timer = Timer(day); defer { timer.show() }
 
         // reverse the replacements
-
-        var newReplacements = [String: String]()
+        var reverseReplacements = [[Atom]: Atom]()
         for (key, value) in replacements {
             for v in value {
-                newReplacements[v] = key
+                reverseReplacements[v] = key
             }
         }
 
-        return 42
+        let keys = reverseReplacements.keys.sorted { $0.count > $1.count }
+
+        var atoms = molecule.atoms
+        let e = Atom(name: "e")
+        var counter = 0
+        print(atoms.atoms)
+        for _ in 0..<100 {
+            for key in keys {
+                for position in lookup(key, in: atoms).reversed() {
+                    atoms.removeSubrange(position ..< position + key.count)
+                    atoms.insert(reverseReplacements[key]!, at: position)
+                    counter += 1
+                }
+
+            }
+            print(atoms.atoms)
+            if atoms == [e] {
+                break
+            }
+        }
+
+        return counter
+    }
+
+    func lookup<T: Equatable>(_ search: [T], in data: [T]) -> [Int] {
+        let len = search.count
+        if len > data.count {
+            return []
+        }
+
+        var found = [Int]()
+        for i in 0 ... data.count - len {
+            let r = data[i..<i+len]
+            if Array(r) == search {
+                found.append(i)
+            }
+        }
+
+        return found
     }
 
 }
