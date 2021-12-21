@@ -65,11 +65,6 @@ struct Day21 {
     }
 
     func run() {
-        let player = Character(type: .player, hp: 8, dmg: 5, armor: 5)
-        let boss = Character(type: .boss, hp: 12, dmg: 7, armor: 2)
-        let x = fight(player, boss)
-        print(x)
-
         print("Solution for part 1: \(part1())")
         print("Solution for part 2: \(part2())")
     }
