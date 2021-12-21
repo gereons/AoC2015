@@ -86,9 +86,9 @@ struct Day22 {
         }
 
         func selectSpell() -> Spell? {
-            var allSpells = Day22.allSpells
-            allSpells.subtract(Set(activeSpells.keys))
-            if let spell = allSpells.randomElement() {
+            let availableSpells = Array(Day22.allSpells.subtracting(Set(activeSpells.keys)))
+
+            for spell in availableSpells.shuffled() {
                 if mana >= spell.cost {
                     return spell
                 }
@@ -143,30 +143,55 @@ struct Day22 {
         let timer = Timer(day); defer { timer.show() }
 
         var minMana = Int.max
-        for _ in 1 ... 100_000 {
+        var fightsWon = 0
+        while true {
             let player = Player(hp: 50, armor: 0, mana: 500)
             let boss = Boss(hp: 58, dmg: 9, armor: 0)
             if let mana = fight(player, boss) {
                 minMana = min(minMana, mana)
-                print(minMana)
+                fightsWon += 1
+                if fightsWon > 100 {
+                    return minMana
+                }
             }
         }
 
-        return minMana
+        fatalError()
     }
 
     private func part2() -> Int {
         let timer = Timer(day); defer { timer.show() }
-        return 42
+
+        var minMana = Int.max
+        var fightsWon = 0
+        while true {
+            let player = Player(hp: 50, armor: 0, mana: 500)
+            let boss = Boss(hp: 58, dmg: 9, armor: 0)
+            if let mana = fight(player, boss, hard: true) {
+                minMana = min(minMana, mana)
+                fightsWon += 1
+                if fightsWon > 100 {
+                    return minMana
+                }
+            }
+        }
+
+        fatalError()
     }
 
-    private func fight(_ player: Player, _ boss: Boss) -> Int? {
+    private func fight(_ player: Player, _ boss: Boss, hard: Bool = false) -> Int? {
         var totalMana = 0
         while true {
             // player hits boss
 //            print("-- player turn")
 //            print(player)
 //            print(boss)
+            if hard {
+                player.hp -= 1
+                if player.hp <= 0 {
+                    return nil
+                }
+            }
             player.spellEffects(against: boss)
             if let spell = player.selectSpell() {
                 player.castSpell(spell, against: boss)
