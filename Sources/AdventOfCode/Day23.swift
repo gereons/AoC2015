@@ -103,6 +103,5 @@ struct Day23 {
         cpu.registers["a"] = 1
         cpu.run(program)
         return cpu.registers["b"]!
-        return 42
     }
 }
