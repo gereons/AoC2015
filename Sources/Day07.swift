@@ -118,7 +118,7 @@ struct Day07 {
 
     func run() {
         // let data = testData
-        let data = readFile(named: "Day\(day)_input.txt")
+        let data = Self.rawInput.components(separatedBy: "\n")
 
         let operations = Timer.time(day) { () -> [String: Operation] in
             var dict = [String: Operation]()

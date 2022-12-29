@@ -51,7 +51,7 @@ struct Day09 {
 
     func run() {
         // let data = testData
-        let data = readFile(named: "Day\(day)_input.txt")
+        let data = Self.rawInput.components(separatedBy: "\n")
 
         let (distances, cities) = Timer.time(day) { () -> ([String: Int], [City]) in
             var dist = [String: Int]()

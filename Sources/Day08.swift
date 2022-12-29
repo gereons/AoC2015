@@ -12,7 +12,7 @@ struct Day08 {
 
     func run() {
         // let data = testData
-        let data = readFile(named: "Day\(day)_input.txt")
+        let data = Self.rawInput.components(separatedBy: "\n")
 
         print("Solution for part 1: \(part1(data))")
         print("Solution for part 2: \(part2(data))")

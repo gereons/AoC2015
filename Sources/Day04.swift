@@ -9,7 +9,7 @@ struct Day04 {
 
     func run() {
         // let data = testData
-        let data = readFile(named: "Day\(day)_input.txt")
+        let data = Self.rawInput.components(separatedBy: "\n")
 
         let prefix5 = part1(data[0])
         print("Solution for part 1: \(prefix5)")

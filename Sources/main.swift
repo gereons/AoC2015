@@ -1,8 +1,5 @@
 import Foundation
 
-// where do the Day input files live relative to $HOME
-let fixturePath = "Developer/AdventOfCode/AoC2015/Fixtures"
-
 Day01().run()
 Day02().run()
 Day03().run()
@@ -33,32 +30,11 @@ Timer.showTotal()
 protocol Day {
     func run()
     var day: String { get }
+    static var rawInput: String { get }
 }
 
-public func readRawFile(named name: String) -> Data? {
-    // relative url, works when running with "swift run"
-    var url = URL(fileURLWithPath: "Fixtures/\(name)")
-    do {
-        _ = try url.checkResourceIsReachable()
-    } catch {
-        // absolute url, used when running from Xcode
-        if let home = ProcessInfo().environment["HOME"] {
-            url = URL(fileURLWithPath: "\(home)/\(fixturePath)/\(name)")
-        }
-    }
-    return try? Data(contentsOf: url)
-}
-
-public func readFile(named name: String) -> [String] {
-    if let data = readRawFile(named: name), let str = String(bytes: data, encoding: .utf8) {
-        var arr = str.split(separator: "\n", omittingEmptySubsequences: false)
-        if arr.last?.isEmpty == true {
-            arr.removeLast()
-        }
-        return arr.map { String($0) }
-    }
-    print("OOPS: can't read input file \(name)")
-    return []
+extension Day {
+    static var rawInput: String { "" }
 }
 
 class Timer {

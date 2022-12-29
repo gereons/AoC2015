@@ -14,10 +14,11 @@ struct Day12 {
 
     func run() {
         // let data = testData
-        let data = readRawFile(named: "Day\(day)_input.txt")
+        let data = Self.rawInput.components(separatedBy: "\n")
 
         let json = Timer.time(day) {
-            try! JSONSerialization.jsonObject(with: data!, options: [])
+            let bytes = data[0].data(using: .utf8)!
+            return try! JSONSerialization.jsonObject(with: bytes, options: [])
         }
 
         print("Solution for part 1: \(part1(json))")

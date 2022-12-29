@@ -58,7 +58,7 @@ struct Day19 {
 
     func run() {
         // let data = testData
-        let data = readFile(named: "Day\(day)_input.txt")
+        let data = Self.rawInput.components(separatedBy: "\n")
 
         let (replacements, molecule) = Timer.time(day) { () -> ([Atom: [[Atom]]], Molecule) in
             var repl = [Atom: [[Atom]]]()
@@ -76,7 +76,7 @@ struct Day19 {
             return (repl, molecule)
         }
 
-        // print("Solution for part 1: \(part1(molecule, replacements))")
+        print("Solution for part 1: \(part1(molecule, replacements))")
         print("Solution for part 2: \(part2(molecule, replacements))")
     }
 
@@ -122,7 +122,7 @@ struct Day19 {
         var atoms = molecule.atoms
         let e = Atom(name: "e")
         var counter = 0
-        print(atoms.atoms)
+        // print(atoms.atoms)
         for _ in 0..<100 {
             for key in keys {
                 for position in lookup(key, in: atoms).reversed() {
@@ -132,7 +132,7 @@ struct Day19 {
                 }
 
             }
-            print(atoms.atoms)
+            // print(atoms.atoms)
             if atoms == [e] {
                 break
             }

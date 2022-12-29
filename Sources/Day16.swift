@@ -62,7 +62,7 @@ struct Day16 {
     }
 
     func run() {
-        let data = readFile(named: "Day\(day)_input.txt")
+        let data = Self.rawInput.components(separatedBy: "\n")
 
         let criteria = [
             "children": 3,

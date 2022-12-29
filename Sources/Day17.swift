@@ -7,7 +7,7 @@ struct Day17 {
 
     func run() {
         // let data = testData
-        let data = readFile(named: "Day\(day)_input.txt")
+        let data = Self.rawInput.components(separatedBy: "\n")
 
         let containers = Timer.time(day) {
             data.compactMap { Int($0) }

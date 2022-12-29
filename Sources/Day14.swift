@@ -46,7 +46,7 @@ struct Day14 {
 
     func run() {
         // let data = testData
-        let data = readFile(named: "Day\(day)_input.txt")
+        let data = Self.rawInput.components(separatedBy: "\n")
 
         let reindeer = Timer.time(day) {
             data.map { Reindeer($0) }

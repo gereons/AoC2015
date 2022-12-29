@@ -20,7 +20,7 @@ struct Day13 {
 
     func run() {
         // let data = testData
-        let data = readFile(named: "Day\(day)_input.txt")
+        let data = Self.rawInput.components(separatedBy: "\n")
 
         let (happiness, names) = Timer.time(day) { () -> ([String:Int], [String]) in
             var happiness = [String: Int]()

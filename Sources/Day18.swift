@@ -111,7 +111,7 @@ struct Day18 {
 
     func run() {
         // let data = testData
-        let data = readFile(named: "Day\(day)_input.txt")
+        let data = Self.rawInput.components(separatedBy: "\n")
 
         let (grid, grid2) = Timer.time(day) {
             (Grid(data), Grid(data))
