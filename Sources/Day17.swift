@@ -1,32 +1,37 @@
-// Solution for part 1: X
-// Solution for part 2: Y
+//
+// Advent of Code 2015 Day 17
+//
 
-struct Day17 {
-    let day = "17"
-    let testData = [ "20", "15", "10", "5", "5"  ]
+import AoCTools
 
-    func run() {
-        // let data = testData
-        let data = Self.rawInput.components(separatedBy: "\n")
+struct Day17: AdventOfCodeDay {
+    let title = "No Such Thing as Too Much"
 
-        let containers = Timer.time(day) {
-            data.compactMap { Int($0) }
-        }
+    let containers: [Int]
 
-        // assert(4 == sum_up(numbers: data, target: 25)
-
-        let (count, minCounts) = part1and2(containers)
-        print("Solution for part 1: \(count)")
-        print("Solution for part 2: \(minCounts)")
+    init(input: String) {
+        containers = input.lines.map { Int($0)! }
     }
 
-    private func part1and2(_ containers: [Int]) -> (Int, Int) {
-        let timer = Timer(day); defer { timer.show() }
-        let result = sumUp(numbers: containers, target: 150)
+    func part1() async -> Int {
+        await part1(target: 150)
+    }
+
+    func part1(target: Int) async -> Int {
+        let result = sumUp(numbers: containers, target: target)
+        return result.count
+    }
+
+    func part2() async -> Int {
+        await part2(target: 150)
+    }
+
+    func part2(target: Int) async -> Int {
+        let result = sumUp(numbers: containers, target: target)
         let minContainers = result.map { $0.count }.min()
 
         let minCount = result.filter { $0.count == minContainers }.count
-        return (result.count, minCount)
+        return minCount
     }
 
     private func sumUp(numbers: [Int], target: Int) -> [[Int]] {
@@ -35,8 +40,7 @@ struct Day17 {
         return result
     }
 
-    private func sumUp(_ numbers: [Int], _ target: Int, _ partial: [Int], _ result: inout [[Int]])
-    {
+    private func sumUp(_ numbers: [Int], _ target: Int, _ partial: [Int], _ result: inout [[Int]]) {
         let partialSum = partial.reduce(0, +)
 
         if partialSum == target {
@@ -55,6 +59,4 @@ struct Day17 {
             sumUp(remaining, target, newPartial, &result)
         }
     }
-
-
 }

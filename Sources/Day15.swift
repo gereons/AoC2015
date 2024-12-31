@@ -1,18 +1,11 @@
-// Solution for part 1: X
-// Solution for part 2: Y
+//
+// Advent of Code 2015 Day 15
+//
 
-struct Day15 {
-    let day = "15"
-    let testData = [
-        "Butterscotch: capacity -1, durability -2, flavor 6, texture 3, calories 8",
-        "Cinnamon: capacity 2, durability 3, flavor -2, texture -1, calories 3"
-    ]
-    let realData = [
-        "Frosting: capacity 4, durability -2, flavor 0, texture 0, calories 5",
-        "Candy: capacity 0, durability 5, flavor -1, texture 0, calories 8",
-        "Butterscotch: capacity -1, durability 0, flavor 5, texture 0, calories 6",
-        "Sugar: capacity 0, durability 0, flavor -2, texture 2, calories 1"
-    ]
+import AoCTools
+
+struct Day15: AdventOfCodeDay {
+    let title = "Science for Hungry People"
 
     struct Ingredient: Hashable {
         let name: String
@@ -36,26 +29,28 @@ struct Day15 {
             hasher.combine(name)
         }
 
-        static func==(lhs: Ingredient, rhs: Ingredient) -> Bool {
+        static func == (lhs: Ingredient, rhs: Ingredient) -> Bool {
             return lhs.name == rhs.name
         }
     }
 
-    func run() {
-        // let data = testData
-        let data = realData
+    let ingredients: [Ingredient]
 
-        let ingredients = Timer.time(day) {
-            data.map { Ingredient($0) }
-        }
-
-        let (maxScore, maxCaloriesScore) = part1And2(ingredients)
-        print("Solution for part 1: \(maxScore)")
-        print("Solution for part 2: \(maxCaloriesScore)")
+    init(input: String) {
+        ingredients = input.lines.map { Ingredient($0) }
     }
 
-    private func part1And2(_ ingredients: [Ingredient]) -> (Int, Int) {
-        let timer = Timer(day); defer { timer.show() }
+    func part1() async -> Int {
+        let (maxScore, _) = part1And2()
+        return maxScore
+    }
+
+    func part2() async -> Int {
+        let (_, maxCaloriesScore) = part1And2()
+        return maxCaloriesScore
+    }
+
+    private func part1And2() -> (Int, Int) {
         var maxScore = 0
         var maxCaloriesScore = 0
 
@@ -69,6 +64,7 @@ struct Day15 {
         return (maxScore, maxCaloriesScore)
     }
 
+    // swiftlint:disable:next function_parameter_count
     private func tryIngredients(
         _ quantities: [Ingredient: Int],
         remainingQuantity: Int,
@@ -104,7 +100,7 @@ struct Day15 {
         return
     }
 
-    func total(_ quantities: [Ingredient: Int]) -> Int {
+    private func total(_ quantities: [Ingredient: Int]) -> Int {
         var capacity = 0
         var durability = 0
         var flavor = 0
@@ -119,7 +115,7 @@ struct Day15 {
         return max(0, capacity) * max(0, durability) * max(0, flavor) * max(0, texture)
     }
 
-    func calories(_ quantities: [Ingredient: Int]) -> Int {
+    private func calories(_ quantities: [Ingredient: Int]) -> Int {
         var cal = 0
         for (ingredient, qty) in quantities {
             cal += qty * ingredient.calories

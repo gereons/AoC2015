@@ -1,18 +1,20 @@
-// Solution for part 1: X
-// Solution for part 2: Y
+//
+// Advent of Code 2015 Day 20
+//
+
+import AoCTools
 import Foundation
 
-struct Day20 {
-    let day = "20"
+struct Day20: AdventOfCodeDay {
+    let title = "Infinite Elves and Infinite Houses"
 
-    func run() {
-        print("Solution for part 1: \(part1(target: 36000000))")
-        print("Solution for part 2: \(part2(target: 36000000))")
+    let target: Int
+
+    init(input: String) {
+        target = Int(input)!
     }
 
-    private func part1(target: Int) -> Int {
-        let timer = Timer(day); defer { timer.show() }
-
+    func part1() async -> Int {
         for i in 1..<Int.max {
             let p = divisors(of: i).reduce(0, +) * 10
             if p >= target {
@@ -22,9 +24,7 @@ struct Day20 {
         fatalError()
     }
 
-    private func part2(target: Int) -> Int {
-        let timer = Timer(day); defer { timer.show() }
-
+    func part2() async -> Int {
         for i in 1..<Int.max {
             let p = divisors(of: i, limit: 50).reduce(0, +) * 11
             if p >= target {
@@ -38,8 +38,8 @@ struct Day20 {
         var d: [Int] = []
         var i = 1
         while i <= Int(sqrt(Double(n))) {
-            if n % i == 0 {
-                let j = n/i
+            if n.isMultiple(of: i) {
+                let j = n / i
                 if limit == 0 || j <= limit {
                     d.append(i)
                 }

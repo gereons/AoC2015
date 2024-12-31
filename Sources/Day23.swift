@@ -1,14 +1,10 @@
-// Solution for part 1: X
-// Solution for part 2: Y
+//
+// Advent of Code 2015 Day 23
+//
 
-struct Day23 {
-    let day = "23"
-    let testData = [
-        "inc a",
-        "jio a, +2",
-        "tpl a",
-        "inc a"
-    ]
+import AoCTools
+struct Day23: AdventOfCodeDay {
+    let title = "Opening the Turing Lock"
 
     struct Instruction {
         let opcode: String
@@ -34,9 +30,9 @@ struct Day23 {
         }
     }
 
-    class CPU {
+    final class CPU {
         var registers = [ "a": 0, "b": 0 ]
-        var pc = 0
+        private var pc = 0
 
         func run(_ program: [Instruction]) {
             while pc >= 0 && pc < program.count {
@@ -75,30 +71,19 @@ struct Day23 {
         }
     }
 
-    func run() {
-        // let data = testData
-        let data = Self.rawInput.components(separatedBy: "\n")
+    let program: [Instruction]
 
-        let program = Timer.time(day) {
-            data.map { line in
-                Instruction(line)
-            }
-        }
-
-        print("Solution for part 1: \(part1(program))")
-        print("Solution for part 2: \(part2(program))")
+    init(input: String) {
+        program = input.lines.map { Instruction($0) }
     }
 
-    private func part1(_ program: [Instruction]) -> Int {
-        let timer = Timer(day); defer { timer.show() }
-
+    func part1() async -> Int {
         let cpu = CPU()
         cpu.run(program)
         return cpu.registers["b"]!
     }
 
-    private func part2(_ program: [Instruction]) -> Int {
-        let timer = Timer(day); defer { timer.show() }
+    func part2() async -> Int {
         let cpu = CPU()
         cpu.registers["a"] = 1
         cpu.run(program)

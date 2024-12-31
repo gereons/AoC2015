@@ -1,36 +1,20 @@
-// Solution for part 1: X
-// Solution for part 2: Y
+//
+// Advent of Code 2015 Day 18
+//
 
-struct Day18 {
-    let day = "18"
-    let testData = [
-        ".#.#.#",
-        "...##.",
-        "#....#",
-        "..#...",
-        "#.#..#",
-        "####..",
-    ]
+import AoCTools
 
-    struct Point {
-        let x, y: Int
-    }
+struct Day18: AdventOfCodeDay {
+    let title = "Like a GIF For Your Yard"
 
-    class Grid {
-        private var cells: [[Bool]]
+    final class Grid {
+        private(set) var cells: [[Bool]]
         let dim: Int
 
-        init(_ data: [String]) {
-            dim = data.count
-            assert(data.count == data[0].count)
-            let empty = [Bool](repeating: false, count: dim)
-            cells = [[Bool]](repeating: empty, count: dim)
-
-            for (y, line) in data.enumerated() {
-                for (x, ch) in line.enumerated() where ch == "#" {
-                    cells[y][x] = true
-                }
-            }
+        init(cells: [[Bool]]) {
+            assert(cells.count == cells[0].count)
+            dim = cells.count
+            self.cells = cells
         }
 
         func show() {
@@ -46,17 +30,11 @@ struct Day18 {
 
         private func neighbors(for x: Int, _ y: Int) -> [Point] {
             var result = [Point]()
-            let offsets = [
-                (-1, -1), (0, -1), (1, -1),
-                (-1,  0),           (1, 0),
-                (-1,  1),  (0, 1),  (1, 1)
-            ]
 
-            for offset in offsets {
-                let nx = x + offset.0
-                let ny = y + offset.1
-                if nx >= 0 && nx < dim && ny >= 0 && ny < dim {
-                    result.append(Point(x: nx, y: ny))
+            for direction in Direction.allCases {
+                let np = Point(x, y) + direction
+                if np.x >= 0 && np.x < dim && np.y >= 0 && np.y < dim {
+                    result.append(np)
                 }
             }
 
@@ -95,9 +73,9 @@ struct Day18 {
 
         func setFixedCorners() {
             cells[0][0] = true
-            cells[0][dim-1] = true
-            cells[dim-1][0] = true
-            cells[dim-1][dim-1] = true
+            cells[0][dim - 1] = true
+            cells[dim - 1][0] = true
+            cells[dim - 1][dim - 1] = true
         }
 
         var lightsOn: Int {
@@ -109,30 +87,43 @@ struct Day18 {
         }
     }
 
-    func run() {
-        // let data = testData
-        let data = Self.rawInput.components(separatedBy: "\n")
+    let cells: [[Bool]]
 
-        let (grid, grid2) = Timer.time(day) {
-            (Grid(data), Grid(data))
+    init(input: String) {
+        let lines = input.lines
+        let dim = lines.count
+        assert(lines.count == lines[0].count)
+        let empty = [Bool](repeating: false, count: dim)
+        var cells = [[Bool]](repeating: empty, count: dim)
+
+        for (y, line) in lines.enumerated() {
+            for (x, ch) in line.enumerated() where ch == "#" {
+                cells[y][x] = true
+            }
         }
-
-        print("Solution for part 1: \(part1(grid))")
-        print("Solution for part 2: \(part2(grid2))")
+        self.cells = cells
     }
 
-    private func part1(_ grid: Grid) -> Int {
-        let timer = Timer(day); defer { timer.show() }
-        for _ in 0 ..< 100 {
+    func part1() async -> Int {
+        await part1(steps: 100)
+    }
+
+    func part1(steps: Int) async -> Int {
+        let grid = Grid(cells: cells)
+        for _ in 0 ..< steps {
             grid.generation()
         }
         return grid.lightsOn
     }
 
-    private func part2(_ grid: Grid) -> Int {
-        let timer = Timer(day); defer { timer.show() }
+    func part2() async -> Int {
+        await part2(steps: 100)
+    }
+
+    func part2(steps: Int) async -> Int {
+        let grid = Grid(cells: cells)
         grid.setFixedCorners()
-        for _ in 0 ..< 100 {
+        for _ in 0 ..< steps {
             grid.generation()
             grid.setFixedCorners()
         }

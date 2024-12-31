@@ -1,62 +1,42 @@
-// Solution for part 1: X
-// Solution for part 2: Y
+//
+// Advent of Code 2015 Day 13
+//
 
-struct Day13 {
-    let day = "13"
-    let testData = [
-        "Alice would gain 54 happiness units by sitting next to Bob.",
-        "Alice would lose 79 happiness units by sitting next to Carol.",
-        "Alice would lose 2 happiness units by sitting next to David.",
-        "Bob would gain 83 happiness units by sitting next to Alice.",
-        "Bob would lose 7 happiness units by sitting next to Carol.",
-        "Bob would lose 63 happiness units by sitting next to David.",
-        "Carol would lose 62 happiness units by sitting next to Alice.",
-        "Carol would gain 60 happiness units by sitting next to Bob.",
-        "Carol would gain 55 happiness units by sitting next to David.",
-        "David would gain 46 happiness units by sitting next to Alice.",
-        "David would lose 7 happiness units by sitting next to Bob.",
-        "David would gain 41 happiness units by sitting next to Carol."
-    ]
+import AoCTools
 
-    func run() {
-        // let data = testData
-        let data = Self.rawInput.components(separatedBy: "\n")
+struct Day13: AdventOfCodeDay {
+    let title = "Knights of the Dinner Table"
 
-        let (happiness, names) = Timer.time(day) { () -> ([String:Int], [String]) in
-            var happiness = [String: Int]()
-            var names = Set<String>()
-            data.forEach { line in
-                let tokens = line.split(separator: " ")
-                let name1 = String(tokens[0])
-                let name2 = String(tokens[10].dropLast())
-                let amount = Int(tokens[3])!
-                let sign = tokens[2] == "gain" ? +1 : -1
+    let happiness: [String: Int]
+    let names: [String]
 
-                happiness["\(name1):\(name2)"] = sign * amount
-                names.insert(name1)
-            }
-            return (happiness, Array(names))
+    init(input: String) {
+        var happiness = [String: Int]()
+        var names = Set<String>()
+        input.lines.forEach { line in
+            let tokens = line.components(separatedBy: " ")
+            let name1 = tokens[0]
+            let name2 = String(tokens[10].dropLast())
+            let amount = Int(tokens[3])!
+            let sign = tokens[2] == "gain" ? +1 : -1
+
+            happiness["\(name1):\(name2)"] = sign * amount
+            names.insert(name1)
         }
 
-        print("Solution for part 1: \(part1(names, happiness))")
-        print("Solution for part 2: \(part2(names, happiness))")
+        self.happiness = happiness
+        self.names = Array(names)
     }
 
-    private func part1(_ names: [String], _ happiness: [String: Int]) -> Int {
-        let timer = Timer(day); defer { timer.show() }
-
-        var maxHappiness = 0
-        names.permutations { order in
-            let happiness = totalHappiness(for: order, happiness)
-            maxHappiness = max(maxHappiness, happiness)
-        }
-        return maxHappiness
+    func part1() async -> Int {
+        maxHappiness(for: names)
     }
 
-    private func part2(_ names: [String], _ happiness: [String: Int]) -> Int {
-        let timer = Timer(day); defer { timer.show() }
-        var names = names
-        names.append("Santa")
+    func part2() async -> Int {
+        maxHappiness(for: names + ["Me"])
+    }
+
+    private func maxHappiness(for names: [String]) -> Int {
         var maxHappiness = 0
         names.permutations { order in
             let happiness = totalHappiness(for: order, happiness)
@@ -78,7 +58,7 @@ struct Day13 {
         }
 
         let first = names[0]
-        let last = names[names.count-1]
+        let last = names[names.count - 1]
         total += happiness["\(last):\(first)"] ?? 0
         total += happiness["\(first):\(last)"] ?? 0
         return total

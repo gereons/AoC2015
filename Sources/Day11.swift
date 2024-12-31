@@ -1,11 +1,13 @@
-// Solution for part 1: X
-// Solution for part 2: Y
+//
+// Advent of Code 2015 Day 11
+//
 
-struct Day11 {
-    let day = "11"
-    let realData = "hepxcrrq"
+import AoCTools
 
-    class Password {
+struct Day11: AdventOfCodeDay {
+    let title = "Corporate Policy"
+
+    final class Password {
         private var letters: [Int]
 
         init(string: String) {
@@ -37,7 +39,7 @@ struct Day11 {
             for index in (0..<letters.count).reversed() {
                 let l = letters[index]
                 if l < 122 {
-                    letters[index] = l+1
+                    letters[index] = l + 1
                     return
                 } else {
                     letters[index] = 97
@@ -47,7 +49,7 @@ struct Day11 {
 
         private func hasStraight() -> Bool {
             for index in 0..<letters.count - 2 {
-                if letters[index+1] == letters[index]+1 && letters[index+2] == letters[index]+2 {
+                if letters[index + 1] == letters[index] + 1 && letters[index + 2] == letters[index] + 2 {
                     return true
                 }
             }
@@ -63,7 +65,7 @@ struct Day11 {
 
         private func firstPairIndex() -> Int? {
             for index in 0..<letters.count - 1 {
-                if letters[index+1] == letters[index] {
+                if letters[index + 1] == letters[index] {
                     return index
                 }
             }
@@ -72,7 +74,7 @@ struct Day11 {
 
         private func lastPairIndex() -> Int? {
             for index in (0..<letters.count - 1).reversed() {
-                if letters[index+1] == letters[index] {
+                if letters[index + 1] == letters[index] {
                     return index
                 }
             }
@@ -80,32 +82,26 @@ struct Day11 {
         }
     }
 
-    func run() {
-        let data = realData
-        // let data = "abcdefgh"
+    let password: String
 
-        let newPwd = part1(data)
-        print("Solution for part 1: \(newPwd)")
-        print("Solution for part 2: \(part2(newPwd))")
+    init(input: String) {
+        self.password = input
     }
 
-    private func part1(_ word: String) -> String {
-        let timer = Timer(day); defer { timer.show() }
-        let password = Password(string: word)
+    func part1() async -> String {
         return findNextPassword(after: password)
     }
 
-    private func part2(_ word: String) -> String {
-        let timer = Timer(day); defer { timer.show() }
-        let password = Password(string: word)
-        password.increment()
-        return findNextPassword(after: password)
+    func part2() async -> String {
+        let newPassword = findNextPassword(after: password)
+        return findNextPassword(after: newPassword)
     }
 
-    private func findNextPassword(after pwd: Password) -> String {
-        while !pwd.isValid {
+    private func findNextPassword(after oldPassword: String) -> String {
+        let pwd = Password(string: oldPassword)
+        repeat {
             pwd.increment()
-        }
+        } while !pwd.isValid
         return pwd.asString
     }
 }

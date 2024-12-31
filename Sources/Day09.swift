@@ -1,46 +1,23 @@
-// Solution for part 1: X
-// Solution for part 2: Y
+//
+// Advent of Code 2015 Day 9
+//
 
-struct Day09 {
-    let day = "09"
-    let testData = [
-        "London to Dublin = 464",
-        "London to Belfast = 518",
-        "Dublin to Belfast = 141"
-    ]
+import AoCTools
 
-    struct City: Hashable {
-        static var distances = [String: Int]()
+struct Day09: AdventOfCodeDay {
+    let title = "All in a Single Night"
 
-        let name: String
+    struct Route {
+        let cities: [String]
+        let distances: [String: Int]
 
-        func distance(to city: City) -> Int {
-            return Self.distances["\(self.name):\(city.name)"]!
-        }
-    }
-
-    class Route {
-        let cities: [City]
-
-        var _distance: Int?
-        var distance: Int {
-            if _distance == nil {
-                _distance = calculateDistance()
-            }
-            return _distance ?? 0
-        }
-
-        init(cities: [City]) {
-            self.cities = cities
-        }
-
-        private func calculateDistance() -> Int {
+        func distance() -> Int {
             var result = 0
-            var previousCity: City?
+            var previousCity: String?
 
             cities.forEach { city in
                 if let previous = previousCity {
-                    result += previous.distance(to: city)
+                    result += distances["\(previous):\(city)"]!
                 }
                 previousCity = city
             }
@@ -49,68 +26,47 @@ struct Day09 {
         }
     }
 
-    func run() {
-        // let data = testData
-        let data = Self.rawInput.components(separatedBy: "\n")
+    let distances: [String: Int]
+    let cities: [String]
 
-        let (distances, cities) = Timer.time(day) { () -> ([String: Int], [City]) in
-            var dist = [String: Int]()
-            var cities = Set<City>()
-            for line in data {
-                let c = line.split(separator: " ")
-                let city1 = String(c[0])
-                let city2 = String(c[2])
-                let distance = Int(c[4])
-                dist["\(city1):\(city2)"] = distance
-                dist["\(city2):\(city1)"] = distance
-                cities.insert(City(name: city1))
-                cities.insert(City(name: city2))
-            }
-            return (dist, Array(cities))
+    init(input: String) {
+        var distances = [String: Int]()
+        var cities = Set<String>()
+        for line in input.lines {
+            let parts = line.components(separatedBy: " ")
+            let city1 = parts[0]
+            let city2 = parts[2]
+            let distance = Int(parts[4])
+            distances["\(city1):\(city2)"] = distance
+            distances["\(city2):\(city1)"] = distance
+            cities.insert(city1)
+            cities.insert(city2)
         }
-        City.distances = distances
 
-        let (min, max) = part1And2(cities)
-        print("Solution for part 1: \(min)")
-        print("Solution for part 2: \(max)")
+        self.distances = distances
+        self.cities = Array(cities)
     }
 
-    private func part1And2(_ cities: [City]) -> (Int, Int) {
-        let timer = Timer(day); defer { timer.show() }
+    func part1() async -> Int {
+        let (minDistance, _) = minMaxDistances(cities)
+        return minDistance
+    }
 
+    func part2() async -> Int {
+        let (_, maxDistance) = minMaxDistances(cities)
+        return maxDistance
+    }
+
+    private func minMaxDistances(_ cities: [String]) -> (Int, Int) {
         var minDistance = Int.max
         var maxDistance = 0
-        cities.permutations { cities in
-            let route = Route(cities: cities)
-            minDistance = min(minDistance, route.distance)
-            maxDistance = max(maxDistance, route.distance)
+        for cities in cities.permutations(ofCount: cities.count) {
+            let route = Route(cities: cities, distances: distances)
+            let distance = route.distance()
+            minDistance = min(minDistance, distance)
+            maxDistance = max(maxDistance, distance)
         }
 
         return (minDistance, maxDistance)
     }
-}
-
-extension Array {
-    // https://en.wikipedia.org/wiki/Heap%27s_algorithm
-
-    func permutations(closure: ([Element]) -> Void) {
-        var data = self
-        generate(n: data.count, data: &data, closure: closure)
-    }
-
-    private func generate(n: Int, data: inout [Element], closure: ([Element]) -> Void) {
-        if n == 1 {
-            closure(data)
-        } else {
-            for i in 0 ..< n {
-                generate(n: n - 1, data: &data, closure: closure)
-                if n % 2 == 0 {
-                    data.swapAt(i, n - 1)
-                } else {
-                    data.swapAt(0, n - 1)
-                }
-            }
-        }
-    }
-
 }

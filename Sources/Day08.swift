@@ -1,29 +1,22 @@
-// Solution for part 1: X
-// Solution for part 2: Y
+//
+// Advent of Code 2015 Day 8
+//
 
-struct Day08 {
-    let day = "08"
-    let testData = [
-        #""""#,
-        #""abc""#,
-        #""aaa\"aaa""#,
-        #""\x27""#
-    ]
+import AoCTools
 
-    func run() {
-        // let data = testData
-        let data = Self.rawInput.components(separatedBy: "\n")
+struct Day08: AdventOfCodeDay {
+    let title = "Matchsticks"
 
-        print("Solution for part 1: \(part1(data))")
-        print("Solution for part 2: \(part2(data))")
+    let input: [String]
+
+    init(input: String) {
+        self.input = input.lines
     }
 
-    private func part1(_ data: [String]) -> Int {
-        let timer = Timer(day); defer { timer.show() }
-
+    func part1() async -> Int {
         var chars = 0
         var inMemory = 0
-        for line in data {
+        for line in input {
             chars += line.count
 
             var memChars = 0
@@ -50,12 +43,10 @@ struct Day08 {
         return chars - inMemory
     }
 
-    private func part2(_ data: [String]) -> Int {
-        let timer = Timer(day); defer { timer.show() }
-
+    func part2() async -> Int {
         var chars = 0
         var encoded = 0
-        for line in data {
+        for line in input {
             chars += line.count
             var enc = line.count + 2
 

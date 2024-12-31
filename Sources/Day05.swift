@@ -1,32 +1,25 @@
-// Solution for part 1: X
-// Solution for part 2: Y
+//
+// Advent of Code 2015 Day 5
+//
 
-struct Day05 {
-    let day = "05"
-    let testData1 = [ "ugknbfddgicrmopn","aaa","jchzalrnumimnmhp", "haegwjzuvuyypxyu", "dvszwmarrgswjxmb" ]
-    let testData2 = [ "qjhvhtzxzqqjkmpb", "xxyxx", "uurcxstgmygtbstg", "ieodomkazucvgmuy" ]
+import AoCTools
+import Algorithms
 
-    func run() {
-        // let data = testData2
-        let data = Self.rawInput.components(separatedBy: "\n")
+struct Day05: AdventOfCodeDay {
+    let title = "Doesn't He Have Intern-Elves For This?"
 
-        print("Solution for part 1: \(part1(data))")
-        print("Solution for part 2: \(part2(data))")
+    let words: [String]
+
+    init(input: String) {
+        words = input.lines
     }
 
-    private func part1(_ words: [String]) -> Int {
-        let timer = Timer(day); defer { timer.show() }
-
-        return words.reduce(0) { sum, word in
-            sum + (isNice1(word) ? 1 : 0)
-        }
+    func part1() async -> Int {
+        words.count(where: isNice1)
     }
 
-    private func part2(_ words: [String]) -> Int {
-        let timer = Timer(day); defer { timer.show() }
-        return words.reduce(0) { sum, word in
-            sum + (isNice2(word) ? 1 : 0)
-        }
+    func part2() async -> Int {
+        words.count(where: isNice2)
     }
 
     private func isNice1(_ word: String) -> Bool {
@@ -38,29 +31,21 @@ struct Day05 {
             }
         }
 
-        let vowels = "aeiou"
+        let vowels = Set("aeiou")
         let vowelsInWord = word.filter { vowels.contains($0) }
         if vowelsInWord.count < 3 {
             // print("naughty: \(word)")
             return false
         }
 
-        var foundDouble = false
-        for ch in "abcdefghijklmnopqrstuvwxyz" {
-            let pair = "\(ch)\(ch)"
-            if word.contains(pair) {
-                foundDouble = true
-                break
-            }
-        }
-
-        return foundDouble
+        let double = word.adjacentPairs().first { $0.0 == $0.1 }
+        return double != nil
     }
 
     private func isNice2(_ word: String) -> Bool {
         let start = word.startIndex
         var found = false
-        for index in 0..<word.count - 1 {
+        for index in 0 ..< word.count - 1 {
             let pair = word[word.index(start, offsetBy: index)...word.index(start, offsetBy: index + 1)]
             for idx2 in (index + 2) ..< word.count {
                 if word.dropFirst(idx2).prefix(2) == pair {
@@ -74,7 +59,7 @@ struct Day05 {
             return false
         }
 
-        for index in 0..<word.count - 2 {
+        for index in 0 ..< word.count - 2 {
             let ch1 = word[word.index(start, offsetBy: index)]
             let ch2 = word[word.index(start, offsetBy: index + 2)]
             if ch1 == ch2 {

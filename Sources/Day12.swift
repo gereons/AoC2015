@@ -1,38 +1,25 @@
-// Solution for part 1: X
-// Solution for part 2: Y
+//
+// Advent of Code 2015 Day 12
+//
 
+import AoCTools
 import Foundation
 
-struct Day12 {
-    let day = "12"
-    let testData = [
-//        "[1,2,3]",
-        #"[1,{"c":"red","b":2},3]"#,
-//        #"{"d":"red","e":[1,2,3,4],"f":5}"#,
-//        #"[1,"red",5]"#
-    ]
+struct Day12: AdventOfCodeDay {
+    let title = "JSAbacusFramework.io"
 
-    func run() {
-        // let data = testData
-        let data = Self.rawInput.components(separatedBy: "\n")
+    let json: Any
 
-        let json = Timer.time(day) {
-            let bytes = data[0].data(using: .utf8)!
-            return try! JSONSerialization.jsonObject(with: bytes, options: [])
-        }
-
-        print("Solution for part 1: \(part1(json))")
-        print("Solution for part 2: \(part2(json))")
+    init(input: String) {
+        let bytes = input.data(using: .utf8)!
+        self.json = (try? JSONSerialization.jsonObject(with: bytes, options: []))!
     }
 
-    private func part1(_ json: Any) -> Int {
-        let timer = Timer(day); defer { timer.show() }
-
+    func part1() async -> Int {
         return sumAllNumbers(in: json)
     }
 
-    private func part2(_ json: Any) -> Int {
-        let timer = Timer(day); defer { timer.show() }
+    func part2() async -> Int {
         return sumAllNonRedNumbers(in: json)
     }
 
@@ -54,14 +41,16 @@ struct Day12 {
 
     private func sumAllNonRedNumbers(in json: Any) -> Int {
         if let dict = json as? [String: Any] {
-            if nil != dict.values.first(where: { val -> Bool in
-                if let str = val as? NSString, str == "red" {
+            let firstRed = dict.values.first { val in
+                if let str = val as? String, str == "red" {
                     return true
                 }
                 return false
-            }) {
+            }
+            if firstRed != nil {
                 return 0
             }
+
             return dict.values.reduce(0) { sum, json in
                 sum + sumAllNonRedNumbers(in: json)
             }

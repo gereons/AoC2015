@@ -3,5 +3,5 @@
 /Packages
 /*.xcodeproj
 .swiftpm
-Sources/Day*Input.swift
 .aoc-session
+Sources/Inputs/*Input.swift

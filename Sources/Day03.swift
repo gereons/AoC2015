@@ -1,33 +1,50 @@
-// Solution for part 1: X
-// Solution for part 2: Y
+//
+// Advent of Code 2015 Day 3
+//
 
-private struct Point: Hashable {
-    let x,y : Int
-}
+import AoCTools
 
-struct Day03 {
-    let day = "03"
-    let testData = [ "^v^v^v^v^v" ]
+struct Day03: AdventOfCodeDay {
+    let title = "Perfectly Spherical Houses in a Vacuum"
 
-    func run() {
-        // let data = testData
-        let data = Self.rawInput.components(separatedBy: "\n")
+    let directions: String
 
-        // print("Solution for part 1: \(part1(data[0]))")
-        print("Solution for part 2: \(part2(data[0]))")
+    init(input: String) {
+        self.directions = input
     }
 
-    private func part1(_ directions: String) -> Int {
-        let timer = Timer(day); defer { timer.show() }
+    func part1() async -> Int {
         var visited = [Point: Bool]()
         return countVisits(directions, &visited)
+    }
+
+    func part2() async -> Int {
+        let santa = directions
+            .enumerated()
+            .filter { index, _ in
+                index.isMultiple(of: 2)
+            }
+            .map { String($0.element) }
+            .joined()
+
+        let roboSanta = directions
+            .enumerated()
+            .filter { index, _ in
+                !index.isMultiple(of: 2)
+            }
+            .map { String($0.element) }
+            .joined()
+
+        var visited = [Point: Bool]()
+        _ = countVisits(santa, &visited)
+        return countVisits(roboSanta, &visited)
     }
 
     private func countVisits(_ directions: String, _ visited: inout [Point: Bool]) -> Int {
         var x = 0
         var y = 0
 
-        visited[Point(x: x, y: y)] = true
+        visited[Point(x, y)] = true
 
         for dir in directions {
             switch dir {
@@ -38,24 +55,9 @@ struct Day03 {
             default: fatalError()
             }
 
-            visited[Point(x: x, y: y)] = true
+            visited[Point(x, y)] = true
         }
 
         return visited.count
-    }
-
-    private func part2(_ directions: String) -> Int {
-        let timer = Timer(day); defer { timer.show() }
-
-        let santa = directions.enumerated().filter { index, ch in
-            index.isMultiple(of: 2)
-        }.map { String($0.element) }.joined()
-        let roboSanta = directions.enumerated().filter { index, ch in
-            !index.isMultiple(of: 2)
-        }.map { String($0.element) }.joined()
-
-        var visited = [Point: Bool]()
-        _ = countVisits(santa, &visited)
-        return countVisits(roboSanta, &visited)
     }
 }

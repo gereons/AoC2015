@@ -1,16 +1,36 @@
-// Solution for part 1: X
-// Solution for part 2: Y
+//
+// Advent of Code 2015 Day 10
+//
 
-struct Day10 {
-    let day = "10"
-    let testData = [ "1","11","21", "1211", "111221" ]
-    let realData = "1113222113"
+import AoCTools
 
-    func run() {
-        // let data = testData
+struct Day10: AdventOfCodeDay {
+    let title = "Elves Look, Elves Say"
 
-        print("Solution for part 1: \(part1(realData))")
-        print("Solution for part 2: \(part2(realData))")
+    let digits: [Int]
+
+    init(input: String) {
+        self.digits = input.compactMap { Int(String($0)) }
+    }
+
+    func part1() async -> Int {
+        await part1(count: 40)
+    }
+
+    func part1(count: Int) async -> Int {
+        lookAndSay(digits: digits, count: count)
+    }
+
+    func part2() async -> Int {
+        lookAndSay(digits: digits, count: 50)
+    }
+
+    private func lookAndSay(digits: [Int], count: Int) -> Int {
+        var digits = digits
+        for _ in 0 ..< count {
+            digits = lookAndSay(digits)
+        }
+        return digits.count
     }
 
     private func lookAndSay(_ input: [Int]) -> [Int] {
@@ -33,23 +53,5 @@ struct Day10 {
         output.append(prev)
 
         return output
-    }
-
-    private func part1(_ str: String) -> Int {
-        let timer = Timer(day); defer { timer.show() }
-        var digits = str.compactMap { Int(String($0)) }
-        for _ in 0..<40 {
-            digits = lookAndSay(digits)
-        }
-        return digits.count
-    }
-
-    private func part2(_ str: String) -> Int {
-        let timer = Timer(day); defer { timer.show() }
-        var digits = str.compactMap { Int(String($0)) }
-        for _ in 0..<50 {
-            digits = lookAndSay(digits)
-        }
-        return digits.count
     }
 }

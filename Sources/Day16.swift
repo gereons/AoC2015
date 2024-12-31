@@ -1,11 +1,11 @@
-// Solution for part 1: X
-// Solution for part 2: Y
+//
+// Advent of Code 2015 Day 16
+//
 
-import Darwin
+import AoCTools
 
-struct Day16 {
-    let day = "16"
-    let testData = [ "1","2","3" ]
+struct Day16: AdventOfCodeDay {
+    let title = "Aunt Sue"
 
     struct Aunt {
         let number: Int
@@ -19,7 +19,7 @@ struct Day16 {
             var attrs = [String: Int]()
             for index in stride(from: 2, through: tokens.count - 1, by: 2) {
                 let name = String(tokens[index].dropLast())
-                var count = tokens[index+1]
+                var count = tokens[index + 1]
                 if count.last == "," {
                     count.removeLast()
                 }
@@ -61,34 +61,26 @@ struct Day16 {
         }
     }
 
-    func run() {
-        let data = Self.rawInput.components(separatedBy: "\n")
+    let aunts: [Aunt]
+    let criteria = [
+        "children": 3,
+        "cats": 7,
+        "samoyeds": 2,
+        "pomeranians": 3,
+        "akitas": 0,
+        "vizslas": 0,
+        "goldfish": 5,
+        "trees": 3,
+        "cars": 2,
+        "perfumes": 1
+    ]
 
-        let criteria = [
-            "children": 3,
-            "cats": 7,
-            "samoyeds": 2,
-            "pomeranians": 3,
-            "akitas": 0,
-            "vizslas": 0,
-            "goldfish": 5,
-            "trees": 3,
-            "cars": 2,
-            "perfumes": 1
-        ]
-
-        let aunts = Timer.time(day) {
-            data.compactMap { Aunt($0) }
-        }
-
-        print("Solution for part 1: \(part1(aunts, criteria))")
-        print("Solution for part 2: \(part2(aunts, criteria))")
+    init(input: String) {
+        aunts = input.lines.map { Aunt($0) }
     }
 
-    private func part1(_ allAunts: [Aunt], _ criteria: [String: Int]) -> Int {
-        let timer = Timer(day); defer { timer.show() }
-
-        for aunt in allAunts {
+    func part1() async -> Int {
+        for aunt in aunts {
             if aunt.matches(criteria) {
                 return aunt.number
             }
@@ -97,10 +89,8 @@ struct Day16 {
         fatalError()
     }
 
-    private func part2(_ allAunts: [Aunt], _ criteria: [String: Int]) -> Int {
-        let timer = Timer(day); defer { timer.show() }
-
-        for aunt in allAunts {
+    func part2() async -> Int {
+        for aunt in aunts {
             if aunt.rangeMatches(criteria) {
                 return aunt.number
             }

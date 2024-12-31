@@ -1,20 +1,19 @@
-// Solution for part 1: 232
-// Solution for part 2: 1783
+//
+// Advent of Code 2015 Day 1
+//
 
-struct Day01 {
-    let day = "01"
-    let testData = [ "()())" ]
+import AoCTools
 
-    func run() {
-        // let data = testData
-        let data = Self.rawInput.components(separatedBy: "\n")
+struct Day01: AdventOfCodeDay {
+    let title = "Not Quite Lisp"
 
-        print("Solution for part 1: \(part1(data[0]))")
-        print("Solution for part 2: \(part2(data[0]))")
+    let instructions: String
+
+    init(input: String) {
+        self.instructions = input
     }
 
-    private func part1(_ instructions: String) -> Int {
-        let timer = Timer(day); defer { timer.show() }
+    func part1() async -> Int {
         var floor = 0
         instructions.forEach { ch in
             switch ch {
@@ -26,8 +25,7 @@ struct Day01 {
         return floor
     }
 
-    private func part2(_ instructions: String) -> Int {
-        let timer = Timer(day); defer { timer.show() }
+    func part2() async -> Int {
         var floor = 0
         for (index, ch) in instructions.enumerated() {
             switch ch {

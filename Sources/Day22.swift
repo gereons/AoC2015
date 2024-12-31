@@ -1,19 +1,22 @@
-// Solution for part 1: X
-// Solution for part 2: Y
+//
+// Advent of Code 2015 Day 22
+//
 
-struct Day22 {
-    let day = "22"
+import AoCTools
+
+struct Day22: AdventOfCodeDay {
+    let title = "Wizard Simulator 20XX"
 
     struct Spell: Hashable {
         let name: String
         let cost: Int
-        let duration: Int? // nil == instantaneous
-        let damage: Int?
-        let heal: Int?
-        let armor: Int?
-        let mana: Int?
+        let duration: Int // 0 == instantaneous
+        let damage: Int
+        let heal: Int
+        let armor: Int
+        let mana: Int
 
-        init(name: String, cost: Int, duration: Int? = nil, damage: Int? = nil, heal: Int? = nil, armor: Int? = nil, mana: Int? = nil) {
+        init(name: String, cost: Int, duration: Int = 0, damage: Int = 0, heal: Int = 0, armor: Int = 0, mana: Int = 0) {
             self.name = name
             self.cost = cost
             self.duration = duration
@@ -30,193 +33,146 @@ struct Day22 {
         static func == (lhs: Spell, rhs: Spell) -> Bool {
             return lhs.name == rhs.name
         }
+
+        static let magicMissile = Spell(name: "Magic Missile", cost: 53, damage: 4)
+        static let drain = Spell(name: "Drain", cost: 73, damage: 2, heal: 2)
+        static let shield = Spell(name: "Shield", cost: 113, duration: 6, armor: 7)
+        static let poison = Spell(name: "Poison", cost: 173, duration: 6, damage: 3)
+        static let recharge = Spell(name: "Recharge", cost: 229, duration: 5, mana: 101)
+
+        static let allSpells = [magicMissile, drain, shield, poison, recharge]
     }
 
-    static let magicMissile = Spell(name: "Magic Missile", cost: 53, damage: 4)
-    static let drain = Spell(name: "Drain", cost: 73, damage: 2, heal: 2)
-    static let shield = Spell(name: "Shield", cost: 113, duration: 6, armor: 7)
-    static let poison = Spell(name: "Poison", cost: 173, duration: 6, damage: 3)
-    static let recharge = Spell(name: "Recharge", cost: 229, duration: 5, mana: 101)
+    let boss: (hp: Int, dmg: Int)
 
-    static let allSpells = Set([magicMissile, drain, shield, poison, recharge])
-
-    enum CharacterType {
-        case player, boss
+    struct GameState {
+        var playerHP: Int
+        var playerMana: Int
+        var activeSpells: [Spell: Int]
+        var bossHP: Int
+        let bossDamage: Int
+        let hardMode: Bool
     }
 
-    class Character {
-        let type: CharacterType
-        var hp: Int
-        let dmg: Int
-        let armor: Int
-
-        init(type: CharacterType, hp: Int, dmg: Int, armor: Int) {
-            self.type = type
-            self.hp = hp
-            self.dmg = dmg
-            self.armor = armor
-        }
-
-        func takeDamage(_ dmg: Int?) {
-            guard let dmg = dmg else { return }
-            hp -= max(1, dmg - armor)
-        }
+    init(input: String) {
+        let lines = input.lines
+        let hp = lines[0].integers()[0]
+        let dmg = lines[1].integers()[0]
+        boss = (hp: hp, dmg: dmg)
     }
 
-    class Player: Character, CustomStringConvertible {
-        var description: String {
-            "Player: hp \(hp), armor \(_armor) mana \(mana)"
+    func part1() async -> Int {
+        await part1(hp: 50, mana: 500)
+    }
+
+    func part1(hp: Int, mana: Int) async -> Int {
+        let state = GameState(
+            playerHP: hp,
+            playerMana: mana,
+            activeSpells: [:],
+            bossHP: boss.hp,
+            bossDamage: boss.dmg,
+            hardMode: false
+        )
+        return leastManaToKillBoss(state, manaLimit: Int.max)
+    }
+
+    func part2() async -> Int {
+        let state = GameState(
+            playerHP: 50,
+            playerMana: 500,
+            activeSpells: [:],
+            bossHP: boss.hp,
+            bossDamage: boss.dmg,
+            hardMode: true
+        )
+        return leastManaToKillBoss(state, manaLimit: Int.max)
+    }
+
+    private func leastManaToKillBoss(_ gameState: GameState, manaLimit: Int) -> Int {
+        var manaLimit = manaLimit
+        var manaUsage = [Spell: Int]()
+
+        let availableSpells = Spell.allSpells.filter {
+            gameState.activeSpells[$0, default: 0] <= 1
         }
 
-        private var mana: Int
-        private var activeSpells = [Spell: Int]()
-        private var _armor: Int {
-            let shield = activeSpells.keys.compactMap { $0.armor }.reduce(0, +)
-            return armor + shield
-        }
-
-        init(hp: Int, armor: Int, mana: Int) {
-            self.mana = mana
-            super.init(type: .player, hp: hp, dmg: 0, armor: armor)
-        }
-
-        override func takeDamage(_ dmg: Int?) {
-            guard let dmg = dmg else { return }
-            hp -= max(1, dmg - _armor)
-        }
-
-        func selectSpell() -> Spell? {
-            let availableSpells = Array(Day22.allSpells.subtracting(Set(activeSpells.keys)))
-
-            for spell in availableSpells.shuffled() {
-                if mana >= spell.cost {
-                    return spell
+        for spell in availableSpells {
+            if spell.cost > gameState.playerMana || spell.cost > manaLimit {
+                continue
+            }
+            let nextGameState = oneRound(casting: spell, gameState: gameState)
+            if nextGameState.bossHP <= 0 {
+                manaUsage[spell] = spell.cost
+            } else if nextGameState.playerHP > 0 {
+                let lowestMana = leastManaToKillBoss(nextGameState, manaLimit: manaLimit - spell.cost)
+                if lowestMana < manaLimit {
+                    manaLimit = lowestMana
                 }
-            }
-            return nil
-        }
-
-        func castSpell(_ spell: Spell, against boss: Character) {
-            assert(activeSpells[spell] == nil)
-            mana -= spell.cost
-            assert(mana >= 0)
-            if let duration = spell.duration {
-                activeSpells[spell] = duration
-            } else {
-                // mm + drain: apply effects immediately
-                boss.takeDamage(spell.damage)
-                hp += spell.heal ?? 0
+                manaUsage[spell] = spell.cost + lowestMana
             }
         }
 
-        func spellEffects(against boss: Character) {
-            for (spell, timer) in activeSpells {
-                boss.takeDamage(spell.damage)
-                mana += spell.mana ?? 0
-
-                if timer > 1 {
-                    activeSpells[spell] = timer - 1
-                } else {
-                    activeSpells[spell] = nil
-                }
-            }
+        if manaUsage.isEmpty {
+            return 99999
         }
+
+        return manaUsage.values.min()!
     }
 
-    class Boss: Character, CustomStringConvertible {
-        init(hp: Int, dmg: Int, armor: Int) {
-            super.init(type: .boss, hp: hp, dmg: dmg, armor: armor)
-        }
+    private func oneRound(casting: Spell, gameState: GameState) -> GameState {
+        var playerArmor = 0
+        var gameState = gameState
 
-        var description: String {
-            "Boss: hp \(hp), dmg \(dmg) armor \(armor)"
-        }
-    }
-
-
-    func run() {
-        print("Solution for part 1: \(part1())")
-        print("Solution for part 2: \(part2())")
-    }
-
-    private func part1() -> Int {
-        let timer = Timer(day); defer { timer.show() }
-
-        var minMana = Int.max
-        var fightsWon = 0
-        while true {
-            let player = Player(hp: 50, armor: 0, mana: 500)
-            let boss = Boss(hp: 58, dmg: 9, armor: 0)
-            if let mana = fight(player, boss) {
-                minMana = min(minMana, mana)
-                fightsWon += 1
-                if fightsWon > 100 {
-                    return minMana
-                }
+        if gameState.hardMode {
+            gameState.playerHP -= 1
+            if gameState.playerHP <= 0 {
+                return gameState
             }
         }
 
-        fatalError()
-    }
-
-    private func part2() -> Int {
-        let timer = Timer(day); defer { timer.show() }
-
-        var minMana = Int.max
-        var fightsWon = 0
-        while true {
-            let player = Player(hp: 50, armor: 0, mana: 500)
-            let boss = Boss(hp: 58, dmg: 9, armor: 0)
-            if let mana = fight(player, boss, hard: true) {
-                minMana = min(minMana, mana)
-                fightsWon += 1
-                if fightsWon > 100 {
-                    return minMana
-                }
-            }
+        applyEffects(to: &gameState, armor: &playerArmor)
+        if gameState.bossHP <= 0 {
+            return gameState
         }
 
-        fatalError()
+        gameState.playerMana -= casting.cost
+        switch casting {
+        case .magicMissile:
+            gameState.bossHP -= casting.damage
+        case .drain:
+            gameState.bossHP -= casting.damage
+            gameState.playerHP += casting.heal
+        default:
+            gameState.activeSpells[casting] = casting.duration
+        }
+        if gameState.bossHP <= 0 {
+            return gameState
+        }
+
+        applyEffects(to: &gameState, armor: &playerArmor)
+        if gameState.bossHP <= 0 {
+            return gameState
+        }
+        let damage = gameState.bossDamage - playerArmor
+        gameState.playerHP -= damage
+        
+        return gameState
     }
 
-    private func fight(_ player: Player, _ boss: Boss, hard: Bool = false) -> Int? {
-        var totalMana = 0
-        while true {
-            // player hits boss
-//            print("-- player turn")
-//            print(player)
-//            print(boss)
-            if hard {
-                player.hp -= 1
-                if player.hp <= 0 {
-                    return nil
-                }
+    private func applyEffects(to gameState: inout GameState, armor: inout Int) {
+        for (spell, duration) in gameState.activeSpells {
+            switch spell {
+            case .shield:
+                armor = spell.armor
+            case .poison:
+                gameState.bossHP -= spell.damage
+            case .recharge:
+                gameState.playerMana += spell.mana
+            default:
+                break
             }
-            player.spellEffects(against: boss)
-            if let spell = player.selectSpell() {
-                player.castSpell(spell, against: boss)
-                totalMana += spell.cost
-            } else {
-//                print("no spell")
-                return nil
-            }
-
-            // boss hits player
-//            print("-- boss turn")
-//            print(player)
-//            print(boss)
-            player.spellEffects(against: boss)
-            player.takeDamage(boss.dmg)
-
-            if boss.hp <= 0 {
-//                print("player wins!")
-//                print("total mana: \(totalMana)")
-                return totalMana
-            }
-            if player.hp <= 0 {
-//                print("player killed")
-                return nil
-            }
+            gameState.activeSpells[spell] = duration == 1 ? nil : duration - 1
         }
     }
 }

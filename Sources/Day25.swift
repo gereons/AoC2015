@@ -1,26 +1,28 @@
-// Solution for part 1: X
-// Solution for part 2: Y
+//
+// Advent of Code 2015 Day 25
+//
 
-struct Day25 {
-    let day = "25"
-    let testData = [ "1","2","3" ]
+import AoCTools
 
-    func run() {
-        print("Solution for part 1: \(part1())")
-        print("Solution for part 2: \(part2())")
+struct Day25: AdventOfCodeDay {
+    let title = "Let It Snow"
+
+    let row: Int
+    let column: Int
+
+    init(input: String) {
+        let ints = input.integers()
+        self.row = ints[0]
+        self.column = ints[1]
     }
 
-    private func part1() -> Int {
-        let timer = Timer(day); defer { timer.show() }
-
+    func part1() async -> Int {
         var number = 20151125
-        let row = 2978
-        let column = 3083
         let maxX = 2 * column + 10
         let maxY = 2 * column + 10
-        let line = [Int](repeating: 0, count: maxX+1)
-        var grid = [[Int]](repeating: line, count: maxY+1)
-        for i in 0 ..< (maxX*maxY) {
+        let line = [Int](repeating: 0, count: maxX + 1)
+        var grid = [[Int]](repeating: line, count: maxY + 1)
+        for i in 0 ..< (maxX * maxY) {
             var r = i
             var c = 0
 
@@ -29,32 +31,15 @@ struct Day25 {
                     return number
                 }
                 grid[r][c] = number
-                number = nextNumber(after: number)
+                number = (number * 252533) % 33554393
 
                 r -= 1
                 c += 1
             } while r >= 0
         }
 
-        for line in grid {
-            for n in line {
-                print(n, terminator: " ")
-            }
-            print()
-        }
-
         fatalError()
     }
 
-    private func part2() -> Int {
-        let timer = Timer(day); defer { timer.show() }
-        return 42
-    }
-
-    private func nextNumber(after n: Int) -> Int {
-//        return n + 1
-        let m = n * 252533
-        let (_, r) = m.quotientAndRemainder(dividingBy: 33554393)
-        return r
-    }
+    func part2() {}
 }

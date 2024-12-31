@@ -1,31 +1,31 @@
-// Solution for part 1: X
-// Solution for part 2: Y
+//
+// Advent of Code 2015 Day 14
+//
 
+import AoCTools
 import Foundation
 
-struct Day14 {
-    let day = "14"
-    let testData = [
-        "Comet can fly 14 km/s for 10 seconds, but then must rest for 127 seconds.",
-        "Dancer can fly 16 km/s for 11 seconds, but then must rest for 162 seconds.",
-    ]
+struct Day14: AdventOfCodeDay {
+    let title = "Reindeer Olympics"
+
+    let reindeers: [Reindeer]
 
     struct Reindeer {
         let name: String
-        let speed: Float
-        let flyTime: Float
-        let restTime: Float
+        let speed: Double
+        let flyTime: Double
+        let restTime: Double
 
         init(_ str: String) {
             let tokens = str.split(separator: " ")
             name = String(tokens[0])
-            speed = Float(tokens[3])!
-            flyTime = Float(tokens[6])!
-            restTime = Float(tokens[13])!
+            speed = Double(tokens[3])!
+            flyTime = Double(tokens[6])!
+            restTime = Double(tokens[13])!
         }
 
         func distanceMoved(atTime time: Int) -> Int {
-            let travelTime = Float(time)
+            let travelTime = Double(time)
             let cycleTime = flyTime + restTime
 
             let cycles = travelTime / cycleTime
@@ -33,7 +33,7 @@ struct Day14 {
             let fullCycles = floor(cycles)
             let remainder = travelTime - (fullCycles * cycleTime)
 
-            var extraDistance: Float = 0
+            var extraDistance: Double = 0
             if remainder > flyTime {
                 extraDistance = flyTime * speed
             } else {
@@ -44,21 +44,11 @@ struct Day14 {
         }
     }
 
-    func run() {
-        // let data = testData
-        let data = Self.rawInput.components(separatedBy: "\n")
-
-        let reindeer = Timer.time(day) {
-            data.map { Reindeer($0) }
-        }
-
-        print("Solution for part 1: \(part1(reindeer))")
-        print("Solution for part 2: \(part2(reindeer))")
+    init(input: String) {
+        self.reindeers = input.lines.map { Reindeer($0) }
     }
 
-    private func part1(_ reindeers: [Reindeer]) -> Int {
-        let timer = Timer(day); defer { timer.show() }
-
+    func part1() async -> Int {
         var maxDistance = 0
         reindeers.forEach { reindeer in
             let distance = reindeer.distanceMoved(atTime: 2503)
@@ -68,9 +58,7 @@ struct Day14 {
         return maxDistance
     }
 
-    private func part2(_ reindeers: [Reindeer]) -> Int {
-        let timer = Timer(day); defer { timer.show() }
-
+    func part2() async -> Int {
         var scores = [String: Int]()
         var maxScore = 0
         for time in 1...2503 {

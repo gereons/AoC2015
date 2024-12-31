@@ -1,5 +1,8 @@
-// Solution for part 1: X
-// Solution for part 2: Y
+//
+// Advent of Code 2015 Day 2
+//
+
+import AoCTools
 
 private struct Parcel {
     let l, w, h: Int
@@ -12,37 +15,28 @@ private struct Parcel {
     }
 }
 
-struct Day02 {
-    let day = "02"
-    let testData = [ "2x3x4", "1x1x10" ]
+struct Day02: AdventOfCodeDay {
+    let title = "I Was Told There Would Be No Math"
 
-    func run() {
-        // let data = testData
-        let data = Self.rawInput.components(separatedBy: "\n")
+    private let parcels: [Parcel]
 
-        let parcels = Timer.time(day) {
-            data.map { Parcel($0) }
-        }
-
-        print("Solution for part 1: \(part1(parcels))")
-        print("Solution for part 2: \(part2(parcels))")
+    init(input: String) {
+        parcels = input.lines.map { Parcel($0) }
     }
 
-    private func part1(_ parcels: [Parcel]) -> Int {
-        let timer = Timer(day); defer { timer.show() }
-        return parcels.reduce(0) { sum, parcel in
-            sum + paperNeededFor(parcel)
+    func part1() async -> Int {
+        parcels.reduce(0) { sum, parcel in
+            sum + paperNeeded(for: parcel)
         }
     }
 
-    private func part2(_ parcels: [Parcel]) -> Int {
-        let timer = Timer(day); defer { timer.show() }
-        return parcels.reduce(0) { sum, parcel in
-            sum + ribbonNeededFor(parcel)
+    func part2() async -> Int {
+        parcels.reduce(0) { sum, parcel in
+            sum + ribbonNeeded(for: parcel)
         }
     }
 
-    private func paperNeededFor(_ parcel: Parcel) -> Int {
+    private func paperNeeded(for parcel: Parcel) -> Int {
         let lw = parcel.l * parcel.w
         let wh = parcel.w * parcel.h
         let hl = parcel.h * parcel.l
@@ -50,7 +44,7 @@ struct Day02 {
         return 2 * lw + 2 * wh + 2 * hl + smallest
     }
 
-    private func ribbonNeededFor(_ parcel: Parcel) -> Int {
+    private func ribbonNeeded(for parcel: Parcel) -> Int {
         var sides = [Int: (Int, Int)]()
         let lw = parcel.l * parcel.w
         let wh = parcel.w * parcel.h

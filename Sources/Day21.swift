@@ -1,8 +1,11 @@
-// Solution for part 1: X
-// Solution for part 2: Y
+//
+// Advent of Code 2015 Day 21
+//
 
-struct Day21 {
-    let day = "21"
+import AoCTools
+
+struct Day21: AdventOfCodeDay {
+    let title = "RPG Simulator 20XX"
 
     enum ItemType {
         case weapon, armor, ring
@@ -33,14 +36,15 @@ struct Day21 {
         Item(type: .ring, cost: 100, dmg: 3, armor: 0),
         Item(type: .ring, cost: 20, dmg: 0, armor: 1),
         Item(type: .ring, cost: 40, dmg: 0, armor: 2),
-        Item(type: .ring, cost: 80, dmg: 0, armor: 3),
+        Item(type: .ring, cost: 80, dmg: 0, armor: 3)
     ]
 
-    class Character {
+    final class Character {
         let type: CharacterType
         var hp: Int
         let _dmg: Int
         let _armor: Int
+        var inventory = [Item?]()
 
         init(type: CharacterType, hp: Int, dmg: Int, armor: Int) {
             self.type = type
@@ -48,8 +52,6 @@ struct Day21 {
             self._dmg = dmg
             self._armor = armor
         }
-
-        var inventory = [Item?]()
 
         var dmg: Int {
             _dmg + inventory.compactMap { $0?.dmg }.reduce(0, +)
@@ -64,15 +66,18 @@ struct Day21 {
         }
     }
 
-    func run() {
-        print("Solution for part 1: \(part1())")
-        print("Solution for part 2: \(part2())")
+    let boss: Character
+
+    init(input: String) {
+        let lines = input.lines
+        let hp = lines[0].integers()[0]
+        let dmg = lines[1].integers()[0]
+        let armor = lines[2].integers()[0]
+        boss = Character(type: .boss, hp: hp, dmg: dmg, armor: armor)
     }
 
-    private func part1() -> Int {
-        let timer = Timer(day); defer { timer.show() }
-
-        let weapons = inventory.filter{ $0.type == .weapon }
+    func part1() async -> Int {
+        let weapons = inventory.filter { $0.type == .weapon }
         let armor = inventory.filter { $0.type == .armor } + [ nil ]
         let rings = inventory.filter { $0.type == .ring } + [ nil ]
         var minGold = Int.max
@@ -82,7 +87,7 @@ struct Day21 {
                     for r2 in rings {
                         if r1 == r2 { continue }
 
-                        let boss = Character(type: .boss, hp: 103, dmg: 9, armor: 2)
+                        let boss = Character(type: .boss, hp: boss.hp, dmg: boss.dmg, armor: boss.armor)
                         let player = Character(type: .player, hp: 100, dmg: 0, armor: 0)
 
                         player.inventory = [w, a, r1, r2]
@@ -98,10 +103,8 @@ struct Day21 {
         return minGold
     }
 
-    private func part2() -> Int {
-        let timer = Timer(day); defer { timer.show() }
-
-        let weapons = inventory.filter{ $0.type == .weapon }
+    func part2() async -> Int {
+        let weapons = inventory.filter { $0.type == .weapon }
         let armor = inventory.filter { $0.type == .armor } + [ nil ]
         let rings = inventory.filter { $0.type == .ring } + [ nil ]
         var maxGold = 0
@@ -111,7 +114,7 @@ struct Day21 {
                     for r2 in rings {
                         if r1 == r2 { continue }
 
-                        let boss = Character(type: .boss, hp: 103, dmg: 9, armor: 2)
+                        let boss = Character(type: .boss, hp: boss.hp, dmg: boss.dmg, armor: boss.armor)
                         let player = Character(type: .player, hp: 100, dmg: 0, armor: 0)
 
                         player.inventory = [w, a, r1, r2]
@@ -127,7 +130,7 @@ struct Day21 {
         return maxGold
     }
 
-    // return true if c1 wins
+    // return winner of fight between c1 and c2
     private func fight(_ c1: Character, _ c2: Character) -> Character {
         var c1 = c1
         var c2 = c2
